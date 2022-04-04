@@ -94,8 +94,9 @@ async function fetchRemote() {
     </div>
     <p>
       How to use it in CURL:
-      <br>
-      curl https://totpfast.azurewebsites.net/api/TOTPGenerator?code=V4E3yvUMwDz7UbzaZ8LdPpJMa6SkbgD0dXHLCFsfJgxNps12ZIJppQ==&T0=0&X=30&sharedSecret=1234567890&digits=10&hashAlgorithm=HmacSHA512&timestamp=1648039295
+    </p>
+    <p>
+      curl https://totpfast.azurewebsites.net/api/TOTPGenerator?code=V4E3yvUMwDz7UbzaZ8LdPpJMa6SkbgD0dXHLCFsfJgxNps12ZIJppQ==&T0=0&X=30&sharedSecret=1234567890&digits=10&amp;timestamp=1648039295&hashAlgorithm=HmacSHA512
     </p>
   </main>
 </template>
