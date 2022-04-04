@@ -24,6 +24,7 @@ async function fetchRemote() {
   const url: string = 'https://totpfast.azurewebsites.net/api/TOTPGenerator'
   const server = new URL(url)
   const params = [
+    ["code", "V4E3yvUMwDz7UbzaZ8LdPpJMa6SkbgD0dXHLCFsfJgxNps12ZIJppQ=="],
     ["T0", `${t0.value}`],
     ["X", `${X.value}`],
     ["sharedSecret", `${sharedSecret.value}`],
