@@ -22,10 +22,10 @@ optional Node.js **Azure Functions** API for demonstration.
 ```
 ┌────────────────────────── totp-online (this repo) ──────────────────────────┐
 │                                                                             │
-│   Vue 3 SPA  ─── Local mode ───► Web Crypto API (in your browser)           │
+│   Vue 3 SPA  ─── Azure Function mode ──► /api/TOTPGenerator ──► Functions   │
+│                  (POST + JSON, default)                         (Node 20)   │
 │       │                                                                     │
-│       │                                                                     │
-│       └─── Azure demo ───► /api/TOTPGenerator ───► Azure Functions (Node)   │
+│       └─── Local mode ───► Web Crypto API (in your browser)                 │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -39,6 +39,12 @@ using Web Crypto. The Functions API at
 [`api/src/totp.ts`](api/src/totp.ts) is a verbatim copy (kept in sync)
 because Azure Static Web Apps treats `api/` as a self-contained npm
 package. Both run unmodified on Node 20+ and modern browsers.
+
+The original Java implementation lives in the sibling repo
+[`YoungForest/totp-functions`](https://github.com/YoungForest/totp-functions)
+as a reference. It targeted a standalone `totpfast.azurewebsites.net`
+Function App that has since been removed; this repo replaces it with
+SWA managed functions but keeps the algorithm logically identical.
 
 ## Local development
 
@@ -59,7 +65,15 @@ npm run start
 ## Tests
 
 ```sh
-npm test             # vitest – RFC 6238 vectors + input validation (30 tests)
+npm test                # Vitest – RFC 6238 vectors + input validation (30 unit tests)
+npm run verify:deploy   # POST every RFC vector at the live API and assert outputs (23 cases)
+```
+
+`npm run verify:deploy` defaults to the production URL above. To verify a
+PR/staging environment, pass the URL as the first argument:
+
+```sh
+node scripts/verify-deployment.mjs https://my-pr-environment.azurestaticapps.net
 ```
 
 ## Production build
@@ -96,18 +110,22 @@ This repo was modernised in 2026:
 
 - Frontend upgraded: Vue 3.2 → 3.5, Vite 2 → 5, TypeScript 4.5 → 5.6,
   vue-tsc 0.31 → 2.1.
-- Backend rewritten: the Java 11 Azure Functions project (formerly the
-  `YoungForest/totp-functions` repo, deployed to `totpfast.azurewebsites.net`
-  with FUNCTIONS_EXTENSION_VERSION `~3` — both retired by Azure) was
-  replaced with a Node.js 20 / TypeScript Functions v4 app, integrated
-  here as Azure Static Web Apps **managed functions**. This eliminates
-  the separate Function App, the function-key-in-source security issue,
-  and the cross-origin call.
+- Backend rewritten: the Java 11 Azure Functions project (formerly
+  deployed to `totpfast.azurewebsites.net` with FUNCTIONS_EXTENSION_VERSION
+  `~3` — the App was removed and the runtime retired) was reimplemented
+  in Node.js 20 / TypeScript Functions v4 and integrated here as Azure
+  Static Web Apps **managed functions**. This eliminates the separate
+  Function App, the function-key-in-source security issue, and the
+  cross-origin call. The original Java source remains at
+  [`YoungForest/totp-functions`](https://github.com/YoungForest/totp-functions)
+  for reference.
 - Algorithm fixes during the port: the legacy Java
   `DIGITS_POWER[10] = 10^9` bug (10-digit OTPs were truncated to 9
   significant digits) is corrected to `10^10` per spec.
 - Removed Google AdSense / Analytics scripts from the page that
   collects shared secrets.
+- Added `scripts/verify-deployment.mjs` for live end-to-end verification
+  against any deployment URL.
 
 ## License
 

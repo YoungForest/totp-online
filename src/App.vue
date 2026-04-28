@@ -8,7 +8,7 @@ import {
 
 type Mode = 'local' | 'server'
 
-const mode = ref<Mode>('local')
+const mode = ref<Mode>('server')
 const t0 = ref<number>(0)
 const x = ref<number>(30)
 const sharedSecret = ref<string>('12345678901234567890')
@@ -162,31 +162,31 @@ watch(
     <header class="header">
       <h1>Online TOTP Generator</h1>
       <p class="tagline">
-        RFC 6238 time-based one-time passwords, generated locally in your
-        browser by default.
+        RFC 6238 time-based one-time passwords, computed by an Azure Function
+        backend or locally in your browser.
       </p>
     </header>
 
     <main class="main">
       <section class="card">
         <div class="mode-toggle" role="radiogroup" aria-label="Computation mode">
-          <label :class="{ active: mode === 'local' }">
-            <input v-model="mode" type="radio" value="local" />
-            <span>Local (recommended)</span>
-          </label>
           <label :class="{ active: mode === 'server' }">
             <input v-model="mode" type="radio" value="server" />
-            <span>Azure demo</span>
+            <span>Azure Function</span>
+          </label>
+          <label :class="{ active: mode === 'local' }">
+            <input v-model="mode" type="radio" value="local" />
+            <span>Local (browser)</span>
           </label>
         </div>
 
         <p v-if="mode === 'local'" class="hint hint-success">
-          ✅ Your shared secret never leaves this browser tab.
+          ✅ Computed in your browser via Web Crypto. The shared secret never
+          leaves this tab.
         </p>
-        <p v-else class="hint hint-warn">
-          ⚠️ Your shared secret will be sent over HTTPS to the Azure Function
-          API at <code>/api/TOTPGenerator</code>. Use this mode only with
-          throwaway / test secrets.
+        <p v-else class="hint hint-info">
+          ☁️ POSTed over HTTPS to <code>/api/TOTPGenerator</code>, a Node.js
+          Azure Function deployed as a Static Web Apps managed function.
         </p>
 
         <form class="form" @submit.prevent="compute">
@@ -320,11 +320,11 @@ watch(
           ASCII reference vectors in RFC 6238 Appendix B.
         </p>
         <p>
-          <strong>Local mode</strong> (default) runs entirely in your browser
-          using the Web Crypto API; no network requests are made.
-          <strong>Azure demo mode</strong> POSTs the parameters to a Node.js
-          Azure Function over HTTPS, demonstrating Azure Static Web Apps
-          managed functions.
+          <strong>Azure Function mode</strong> (default) POSTs the parameters
+          to a Node.js Azure Function over HTTPS, demonstrating Azure Static
+          Web Apps managed functions. <strong>Local mode</strong> runs entirely
+          in your browser using the Web Crypto API; no network requests are
+          made.
         </p>
         <p>
           Source:
@@ -409,6 +409,11 @@ watch(
 .hint-success {
   background: color-mix(in srgb, var(--success) 10%, transparent);
   color: var(--success);
+}
+
+.hint-info {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
 }
 
 .hint-warn {
