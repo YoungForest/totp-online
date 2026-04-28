@@ -83,13 +83,54 @@ npm run build        # outputs dist/
 cd api && npm run build   # outputs api/dist/
 ```
 
+## Azure deployment topology
+
+Today (2026-04-28) the `topt` resource group on subscription `Visual
+Studio Enterprise Subscription` (tenant `393e9d95-…`) contains:
+
+| Resource                                | Type                                  | Status     | Used by    |
+|-----------------------------------------|---------------------------------------|------------|------------|
+| `topt-online`                           | `Microsoft.Web/staticSites` (Free)    | Ready      | This repo  |
+| `topta5c6`                              | Storage account (Function backing)    | Available  | Java FA    |
+| `ASP-topt-8671`                         | App Service Plan                      | Ready      | Java FA    |
+| `totp-functions`                        | `Microsoft.Web/sites` (Function App)  | Running    | Legacy POC |
+| `totp-functions` (Application Insights) | App Insights component                | Active     | Java FA    |
+
+The **Java Function App** (`totp-functions.azurewebsites.net`) is a
+historical / parallel POC built from the
+[`YoungForest/totp-functions`](https://github.com/YoungForest/totp-functions)
+repo — Java 17, FUNCTIONS_EXTENSION_VERSION `~4`. It still works but is
+**not used by this site** (the SPA calls the SWA managed function at
+`/api/TOTPGenerator` over the same origin instead). It is preserved as
+a Java demonstration; you can call it directly with a function key:
+
+```sh
+curl "https://totp-functions.azurewebsites.net/api/TOTPGenerator\
+?code=<FUNCTION_KEY>&T0=0&X=30&sharedSecret=12345678901234567890\
+&digits=8&hashAlgorithm=HmacSHA1&timestamp=59"
+# -> 94287082
+```
+
+(Get the key with `az functionapp function keys list -n totp-functions
+-g topt --function-name TOTPGenerator -o json`.)
+
+The **old hostname** `totpfast.azurewebsites.net` referenced in earlier
+versions of this README and in `src/App.vue` was removed by Azure long
+ago and is unrelated to the currently-running `totp-functions` app.
+
 ## Deployment
 
 Push to the `mainline` branch — the GitHub Action
 [`azure-static-web-apps-*.yml`](.github/workflows/) builds and deploys
 the SPA + the API to Azure Static Web Apps automatically.
 
-Live URL: <https://ambitious-coast-0265e0a0f.5.azurestaticapps.net>
+Live URLs (verified 2026-04-28, 23/23 RFC 6238 vectors pass):
+
+- Custom domain: <https://totp.youngforest.me>
+- Default SWA hostname: <https://ambitious-coast-0265e0a0f.5.azurestaticapps.net>
+
+The custom domain `totp.youngforest.me` is bound to the SWA via
+`Microsoft.Web/staticSites/customDomains` (status: Ready).
 
 ### If a fresh deploy fails
 
