@@ -1,0 +1,26 @@
+{
+  "name": "totp-online-api",
+  "version": "1.0.0",
+  "description": "Azure Static Web Apps managed function for the TOTP generator (Node.js v4 programming model).",
+  "private": true,
+  "main": "dist/src/{index.js,functions/*.js}",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "clean": "rimraf dist",
+    "prestart": "npm run build",
+    "start": "func start",
+    "test": "echo \"(api uses shared totp.ts; tests live in ../src/lib/totp.test.ts)\" && exit 0"
+  },
+  "dependencies": {
+    "@azure/functions": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "rimraf": "^6.0.1",
+    "typescript": "~5.6.3"
+  }
+}
