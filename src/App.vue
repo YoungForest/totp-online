@@ -40,7 +40,13 @@ const validationError = computed<string>(() => {
 
 const periodInfo = computed(() => {
   if (!Number.isFinite(x.value) || x.value <= 0) return { progress: 0, remaining: 0 }
-  const ts = useNow.value ? Math.floor(Date.now() / 1000) : timestamp.value
+  // Always read timestamp.value so this computed depends on it; the ticker
+  // updates timestamp.value once per second when autoRefresh + useNow are on,
+  // so the countdown re-runs every tick. Previously this used a useNow ?
+  // Date.now() : timestamp.value ternary that, on the useNow branch, never
+  // touched timestamp.value — Vue's reactivity therefore didn't re-run the
+  // computed on tick and the display froze on the first frame.
+  const ts = timestamp.value
   const elapsed = ((ts - t0.value) % x.value + x.value) % x.value
   return {
     progress: elapsed / x.value,
