@@ -75,7 +75,7 @@ Push to the `mainline` branch — the GitHub Action
 [`azure-static-web-apps-*.yml`](.github/workflows/) builds and deploys
 the SPA + the API to Azure Static Web Apps automatically.
 
-Live URL: <https://ambitious-coast-0265e0a0f.azurestaticapps.net>
+Live URL: <https://ambitious-coast-0265e0a0f.5.azurestaticapps.net>
 
 ### If a fresh deploy fails
 
